@@ -1,7 +1,9 @@
 import React, { useState, useEffect, Children, setState } from 'react';
 import Web3Modal from 'web3modal';
 import { ethers } from 'ethers';
+import { AuthProvider, AppMode } from '@arcana/auth';
 import axios from 'axios';
+// import { getWalletInstance } from '../lib/storageProvider';
 import { create as ipfsHttpClient } from 'ipfs-http-client';
 // all the data is centralized
 import { MarketAddress, MarketAddressABI } from './constants';
@@ -31,25 +33,38 @@ export const NFTProvider = ({ children }) => {
     const nftCurrency = 'ETH';
 
     const checkIfWalletISConnected = async () => {
-        if (!window.ethereum) return alert('Please install MetaMask');
+        let address = '';
+        // if (!window.ethereum) return alert('Please install MetaMask');
+        const auth = new AuthProvider('80eFC42f59eC1526327b9EbAECa5b9A7d81FfDE0');
+        await auth.init({ appMode: AppMode.Full, position: 'right' });
+        const provider = auth.provider;
 
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        const accounts = await provider.requestUserInfo({
+            method: 'eth_accounts',
+        });
+        address = { accounts }.accounts.address;
+        console.log({ accounts });
+        console.log('heyy');
+        console.log(address);
 
-        if (accounts.length) {
-            setCurrentAccount(accounts[0]);
+        if (address.length) {
+            setCurrentAccount(address);
         } else {
             console.log('No accounts found');
         }
+        // if(cc ==1){
+        //     window.location.reload
+        // }
     };
 
     useEffect(() => {
         checkIfWalletISConnected();
     }, []);
     const connectWallet = async () => {
-        if (!window.ethereum) return alert('Please install MetaMask');
+        // if (!window.ethereum) return alert('Please install MetaMask');
 
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        setCurrentAccount(accounts[0]);
+        // const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // setCurrentAccount(accounts[0]);
 
         window.location.reload();
     };
