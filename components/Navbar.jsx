@@ -26,7 +26,12 @@ const MenuItems = ({ isMobile, active, setActive, setIsOpen }) => {
 
     return (
         <ul className={`list-none flexCenter flex-row ${isMobile && 'flex-col h-full'}`}>
-            {['Explore Land NFTs', 'Listed NFTs', 'My NFTs', 'Add Document'].map((item, i) => (
+            {[
+                'Explore property listed',
+                'Listed proper',
+                'My listing',
+                'Add private property document',
+            ].map((item, i) => (
                 <li
                     key={i}
                     onClick={() => {
