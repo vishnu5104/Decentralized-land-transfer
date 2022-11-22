@@ -29,12 +29,30 @@ export class UploadFile extends React.Component {
         return (
             <form class="content" onSubmit={this.onSubmit}>
                 <label class="sty" htmlFor="upload-file-input">
-                    Upload your Land Document
+                    property sale deed
                 </label>
                 &nbsp;
                 <input id="upload-file-input" type="file" ref={this.onRef} />
                 <button class="btn-c" type="submit">
-                    Submit
+                    Submit PSD
+                </button>
+                <br></br>
+                <label class="sty" htmlFor="upload-file-input">
+                    Power of attorney
+                </label>
+                &nbsp;
+                <input id="upload-file-input" type="file" ref={this.onRef} />
+                <button class="btn-c" type="submit">
+                    Submit POA
+                </button>
+                <br></br>
+                <label class="sty" htmlFor="upload-file-input">
+                    Governement id
+                </label>
+                &nbsp;
+                <input id="upload-file-input" type="file" ref={this.onRef} />
+                <button class="btn-c" type="submit">
+                    Submit G-ID
                 </button>
             </form>
         );
