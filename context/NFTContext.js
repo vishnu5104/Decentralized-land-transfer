@@ -3,10 +3,13 @@ import Web3Modal from 'web3modal';
 import { ethers } from 'ethers';
 import { AuthProvider, AppMode } from '@arcana/auth';
 import axios from 'axios';
+
+import { getArcanaProviderOrSigner, getAuthInstance } from '../utils/storageProvider';
 // import { getWalletInstance } from '../lib/storageProvider';
 import { create as ipfsHttpClient } from 'ipfs-http-client';
 // all the data is centralized
 import { MarketAddress, MarketAddressABI } from './constants';
+import { getContract } from '../utils';
 
 // const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
 const projectId = '2HBU3YyYwfV23KQaCXvUgjpXXeX';
@@ -34,24 +37,43 @@ export const NFTProvider = ({ children }) => {
 
     const checkIfWalletISConnected = async () => {
         let address = '';
+        const auth = await getAuthInstance();
         // if (!window.ethereum) return alert('Please install MetaMask');
-        const auth = new AuthProvider('80eFC42f59eC1526327b9EbAECa5b9A7d81FfDE0');
-        await auth.init({ appMode: AppMode.Full, position: 'right' });
+        // const auth = new AuthProvider('80eFC42f59eC1526327b9EbAECa5b9A7d81FfDE0');
+        // await auth.init({ appMode: AppMode.Full, position: 'left' });
         const provider = auth.provider;
-
-        const accounts = await provider.requestUserInfo({
-            method: 'eth_accounts',
-        });
-        address = { accounts }.accounts.address;
-        console.log({ accounts });
-        console.log('heyy');
-        console.log(address);
-
-        if (address.length) {
-            setCurrentAccount(address);
-        } else {
-            console.log('No accounts found');
+        setHooks();
+        function setHooks() {
+            provider.on('connect', async (params) => {
+                walletarcana();
+                console.log({ type: 'connect', params: params });
+                const isLoggedIn = await auth.isLoggedIn();
+                console.log({ isLoggedIn });
+            });
         }
+        async function walletarcana() {
+            let from = '';
+            const accounts = await provider.request({
+                method: 'eth_accounts',
+                params: [],
+            });
+            from = accounts[0];
+            console.log({ accounts }.accounts);
+            console.log('kkl');
+            if (accounts.length) {
+                setCurrentAccount(from);
+            } else {
+                console.log('No accounts found');
+            }
+        }
+        // const accounts = await provider.requestUserInfo({
+        //     method: 'eth_accounts',
+        // });
+        // address = { accounts }.accounts.address;
+        // console.log({ accounts });
+        // console.log('heyy');
+        // console.log(address);
+
         // if(cc ==1){
         //     window.location.reload
         // }
@@ -107,26 +129,34 @@ export const NFTProvider = ({ children }) => {
 
     const createSale = async (url, formInputPrice, isReselling, id) => {
         // connect to smart contract
+        console.log('heypm');
+        // const web3Modal = new Web3Modal();
+        // const connection = await web3Modal.connect();
+        // const provider = new ethers.providers.Web3Provider(connection);
 
-        const web3Modal = new Web3Modal();
-        const connection = await web3Modal.connect();
-        const provider = new ethers.providers.Web3Provider(connection);
-        const signer = provider.getSigner();
+        // const provider = new ethers.providers.Web3Provider(arcanaProvider);
+        const signer = await getArcanaProviderOrSigner(true);
+        console.log(signer);
+
         // value of wei of zeo of to convert to it that what metamask read
         const price = ethers.utils.parseUnits(formInputPrice, 'ether');
         // calling func() from contract takes time so use await
-        const contract = fetchContract(signer);
-
+        const contract = getContract(signer);
+        console.log('heypl');
         // CountInc();
 
         // await contract.CountInc();
+        console.log(contract);
 
         const listingPrice = await contract.getListingPrice();
+
+        console.log('klms');
         const transaction = !isReselling
             ? await contract.createToken(url, price, { value: listingPrice.toString() })
             : // else it belong to this
               await contract.resellToken(id, price, { value: listingPrice.toString() });
         await transaction.wait();
+        console.log('klmp');
     };
     // for home page
     const fetchNFTs = async () => {
